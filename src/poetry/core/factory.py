@@ -245,8 +245,11 @@ class Factory:
         from poetry.core.packages.utils.utils import create_nested_marker
         from poetry.core.packages.vcs_dependency import VCSDependency
         from poetry.core.semver.helpers import parse_constraint
+        from poetry.core.utils.helpers import canonicalize_name
         from poetry.core.version.markers import AnyMarker
         from poetry.core.version.markers import parse_marker
+
+        name = canonicalize_name(name)
 
         if groups is None:
             groups = ["default"]
