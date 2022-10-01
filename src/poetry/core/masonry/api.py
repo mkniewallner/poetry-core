@@ -4,6 +4,8 @@ PEP-517 compliant buildsystem API
 from __future__ import annotations
 
 import logging
+import sys
+import warnings
 
 from pathlib import Path
 from typing import Any
@@ -56,12 +58,32 @@ def prepare_metadata_for_build_wheel(
     return dist_info.name
 
 
+def _show_deprecation_notice() -> None:
+    print("foo", file=sys.stdout)
+
+    with warnings.catch_warnings():
+        warnings.resetwarnings()
+        warnings.warn(
+            "The package relies on `master` branch of `poetry-core` as its"
+            " build-system, which is deprecated and set for removal on June 1, 2023."
+            " After this date, it won't be possible to install the version of this"
+            " package. If you depend on this package, try to upgrade to a newer"
+            " version. If you still have this message after upgrading, you can contact"
+            " the package's maintainers and direct them to"
+            " https://github.com/python-poetry/poetry/issues/6675 issue.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+
 def build_wheel(
     wheel_directory: str,
     config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,
 ) -> str:
     """Builds a wheel, places it in wheel_directory"""
+    _show_deprecation_notice()
+
     poetry = Factory().create_poetry(Path(".").resolve(), with_groups=False)
 
     return WheelBuilder.make_in(poetry, Path(wheel_directory))
@@ -71,6 +93,8 @@ def build_sdist(
     sdist_directory: str, config_settings: dict[str, Any] | None = None
 ) -> str:
     """Builds an sdist, places it in sdist_directory"""
+    _show_deprecation_notice()
+
     poetry = Factory().create_poetry(Path(".").resolve(), with_groups=False)
 
     path = SdistBuilder(poetry).build(Path(sdist_directory))
@@ -83,6 +107,8 @@ def build_editable(
     config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,
 ) -> str:
+    _show_deprecation_notice()
+
     poetry = Factory().create_poetry(Path(".").resolve(), with_groups=False)
 
     return WheelBuilder.make_in(poetry, Path(wheel_directory), editable=True)
